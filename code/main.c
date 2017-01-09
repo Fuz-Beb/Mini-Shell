@@ -26,15 +26,21 @@ int main(int argc, char** argv)
 		gethostname(hostname, 256);
 		getcwd(workingdirectory, 256);
         //Print it to the console
+
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
 		readlineptr = readline(str);
-        
-        //Your code goes here.......
+
+// DEBUT TEMP Pierrick
+		cmd * commandStruct = (cmd*)malloc(sizeof(cmd));
+		parse_members(readlineptr, commandStruct);
+// FIN TEMP Pierrick
+
+				//Your code goes here.......
         //Parse the comand
         //Execute the comand
         //Clean the house
         //..........
-        
+
 	}
 	//..........
 	return 0;
