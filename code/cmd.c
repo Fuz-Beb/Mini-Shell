@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "cmd.h"
 //Your includes come here
@@ -45,7 +47,7 @@ void parse_members_args(cmd *c){
 
 	if (c->cmd_members_args == NULL)
 	{
-		printf("Malloc error : c->cmd_members_args")
+		printf("Malloc error : c->cmd_members_args");
 		exit(EXIT_FAILURE);
 	}
 
@@ -59,7 +61,7 @@ void parse_members_args(cmd *c){
 			j++;
 
 		size_args = j;
-		c->cmd_members_args[z] = subString(command+size_args, command+j)
+		c->cmd_members_args[i][z] = subString(command+size_args, command+j);
 		z++;
 
 		while (command[j] != '\0')
@@ -74,12 +76,12 @@ void parse_members_args(cmd *c){
 				while (command[j] != ' ')
 					j++;
 
-				c->cmd_members_args[z] = subString(command+size_args, command+j)
+				c->cmd_members_args[i][z] = subString(command+size_args, command+j);
 				z++;
 			}
 			else
 			{
-				c->cmd_members_args[z] = strdup(NULL);
+				c->cmd_members_args[i][z] = strdup("NULL");
 				break;	
 			}
 		}
@@ -103,14 +105,17 @@ void parse_redirection(unsigned int i, cmd *c){
 }
 
 // Permet de retourner une partie d'une chaine
-char * subString(const char * start, const char * end)
+char * subString(char * start, char * end)
 {
     size_t count = 0;
     size_t diffLengthStartEnd = (size_t)end-(size_t)start;
     char * cpyString = (char*)malloc(diffLengthStartEnd + 1);
 
     if (cpyString == NULL)
-        fatalError("malloc error : Allocation of cpyString on the heap failed");
+    {
+        printf("Malloc error : cpyString");
+		exit(EXIT_FAILURE);
+	}
 
     while (count != diffLengthStartEnd)
     {
