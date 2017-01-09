@@ -22,7 +22,7 @@ void free_members(cmd *c){
 }
 
 //Prints the redirection information for member i
-void print_redirection(cmd c, int i){
+void print_redirection(cmd *c, int i){
     //your implementation comes here
 }
 
