@@ -1,4 +1,8 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "cmd.h"
+
 //Your includes come here
 
 //Prints the contents of members_args to the console
@@ -38,7 +42,34 @@ void parse_members_args(cmd *c){
 
 //Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
-    //your implementation comes here
+/*
+    int i = 0, numeroArg = 0;
+    char buffer[40];
+
+    memset(buffer,'\0',40);
+
+    // Insertion de la commande dans la structure
+    c->init_cmd = strdup(s);
+
+    while(c->init_cmd[i] != '\0')
+    {
+        while(c->init_cmd[i] != '|' && c->init_cmd[i] != '\0')
+        {
+            buffer[i] = c->init_cmd[i];
+            i++;
+        }
+
+        if(buffer[i-1] == ' ')
+        {
+            buffer[i-1] = '\0';
+        }
+
+        c->cmd_members[numeroArg] = strdup(buffer);
+        numeroArg++;
+    }
+
+    c->nb_cmd_members = numeroArg;
+*/
 }
 
 //Remplit les champs redir et type_redir
