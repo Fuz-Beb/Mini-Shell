@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-=======
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
->>>>>>> f1943e18064daea94f7eff8cfcab7263023d85fc
 #include "cmd.h"
 
 //Your includes come here
@@ -89,7 +83,7 @@ void parse_members_args(cmd *c){
 			else
 			{
 				c->cmd_members_args[i][z] = strdup("NULL");
-				break;	
+				break;
 			}
 		}
 
