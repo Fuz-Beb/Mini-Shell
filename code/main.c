@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 		print_members(command);
 
 		// Ajoute les arguments des membres
-		//parse_members_args(command);
+		parse_members_args(command);
 
 		// Affichage des membres
 		//print_members_args(command);
@@ -48,6 +48,7 @@ int main(int argc, char** argv)
 		/*print_members(command);*/
 
 		// Affichage des redirections
+		print_redirection(command, 1);
 	}
 	// return 0
 	return 0;
