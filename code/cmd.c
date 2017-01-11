@@ -97,34 +97,46 @@ void parse_members_args(cmd *c){
 
 //Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
-/*
-    int i = 0, numeroArg = 0;
-    char buffer[40];
 
-    memset(buffer,'\0',40);
+    int pointFin = 0, pointDeb = 0, nbrMembre = 0;
+
+		// Allocation du tableau
+		c->cmd_members = (char**) malloc(sizeof(char *));
+
+		if (c->cmd_members == NULL)
+		{
+			printf("Malloc error : c->cmd_members");
+			exit(EXIT_FAILURE);
+		}
 
     // Insertion de la commande dans la structure
     c->init_cmd = strdup(s);
 
-    while(c->init_cmd[i] != '\0')
-    {
-        while(c->init_cmd[i] != '|' && c->init_cmd[i] != '\0')
-        {
-            buffer[i] = c->init_cmd[i];
-            i++;
-        }
+		// Calcul du nombre de membre
+		while(c->init_cmd[pointFin  +1] != '\0')
+		{
+				nbrMembre++;
+				c->cmd_members = realloc(c->cmd_members, sizeof(char *) * nbrMembre);
 
-        if(buffer[i-1] == ' ')
-        {
-            buffer[i-1] = '\0';
-        }
+				if (c->cmd_members == NULL)
+				{
+						printf("Realloc error : c->cmd_members");
+						exit(EXIT_FAILURE);
+				}
 
-        c->cmd_members[numeroArg] = strdup(buffer);
-        numeroArg++;
-    }
+				// Je verrif si à la fin il y a bien espace et a +1 un pipe
+				while(c->init_cmd[pointFin] != '\0' && c->init_cmd[pointFin + 1] != '|')
+						pointFin++;
 
-    c->nb_cmd_members = numeroArg;
-*/
+				c->cmd_members[nbrMembre - 1] = subString(c->init_cmd + pointDeb, c->init_cmd + pointFin);
+
+				pointDeb = pointFin + 3;
+				pointFin = pointDeb;
+
+		}
+
+		c->nb_cmd_members = nbrMembre;
+
 }
 
 //Remplit les champs redir et type_redir
