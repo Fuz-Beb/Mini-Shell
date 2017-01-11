@@ -72,7 +72,7 @@ void print_members(cmd *c){
 
 //Frees the memory allocated to store member information
 void free_members(cmd *c){
-    
+
     unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0;
 
@@ -118,7 +118,7 @@ void parse_members_args(cmd *c){
 	if (c->nb_members_args == NULL)
 	{
 		printf("Malloc error : c->nb_members_args");
-		exit(EXIT_FAILURE); 
+		exit(EXIT_FAILURE);
 	}
 
 	// Parcours des membres
@@ -127,7 +127,7 @@ void parse_members_args(cmd *c){
 		command = strdup(c->cmd_members[i]);
 		z = 0;
 
-		// Recherche le nombre de caractère du premier mot de la chaine 
+		// Recherche le nombre de caractère du premier mot de la chaine
 		while (command[j] != ' ' || command[j] != '\0')
 			j++;
 
@@ -166,7 +166,7 @@ void parse_members_args(cmd *c){
 
 		i++;
 		nb_cmd_members--;
-		/*free(command);*/
+		free(command);
 	}
 
 
@@ -190,7 +190,7 @@ void parse_members(char *s,cmd *c){
     c->init_cmd = strdup(s);
 
 	// Calcul du nombre de membre
-	while(c->init_cmd[pointFin  +1] != '\0')
+	while(c->init_cmd[pointFin + 1] != '\0')
 	{
 		nbrMembre++;
 		c->cmd_members = realloc(c->cmd_members, sizeof(char *) * nbrMembre);
@@ -207,6 +207,9 @@ void parse_members(char *s,cmd *c){
 
 		c->cmd_members[nbrMembre - 1] = subString(c->init_cmd + pointDeb, c->init_cmd + pointFin);
 
+		if(c->init_cmd[pointFin + 1] != '|')
+				break;
+
 		pointDeb = pointFin + 3;
 		pointFin = pointDeb;
 	}
@@ -216,7 +219,7 @@ void parse_members(char *s,cmd *c){
 
 //Remplit les champs redir et type_redir
 void parse_redirection(unsigned int i, cmd *c){
-    
+
     // Variables
     int j = 0, z = 0;
     char * command = NULL;

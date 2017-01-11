@@ -29,7 +29,7 @@ int main(int argc, char** argv)
         //Print it to the console
 
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
-		readlineptr = readline(str); 
+		readlineptr = readline(str);
 
 		// Initialise la structure
 		command = init();
@@ -39,10 +39,10 @@ int main(int argc, char** argv)
 		print_members(command);
 
 		// Ajoute les arguments des membres
-		parse_members_args(command);
+		//parse_members_args(command);
 
 		// Affichage des membres
-		print_members_args(command);
+		//print_members_args(command);
 
 		// Affichage des paramètres des membres
 		/*print_members(command);*/
