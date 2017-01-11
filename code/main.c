@@ -39,10 +39,8 @@ int main(int argc, char** argv)
 		print_members(command);
 
 		// Ajoute les arguments des membres
-		//parse_members_args(command);
-
-		// Affichage des membres
-		//print_members_args(command);
+		parse_members_args(command);
+		print_members_args(command);
 
 		// Affichage des paramètres des membres
 		/*print_members(command);*/

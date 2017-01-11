@@ -22,7 +22,7 @@ void print_members_args(cmd *c){
 		// Affichage du nombre d'arguments pour chaque membre
 		printf("nb_members_args[%d] = %d\n", i, c->nb_members_args[i]);
 
-		while (nb_members_args >= 0)
+		while (nb_members_args > 0)
 		{
 			// Affichage de chaque argument
 			printf("cmd_members_args[%d][%d] = %s\n",i, j, c->cmd_members_args[i][j]);
@@ -30,6 +30,7 @@ void print_members_args(cmd *c){
 			j++;
 		}
 		j = 0;
+		i++;
 		nb_cmd_members--;
 	}
 }
@@ -61,6 +62,8 @@ void print_members(cmd *c){
 
 	unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0;
+
+	printf("nb_cmd_members = %d\n", c->nb_cmd_members);
 
 	while (nb_cmd_members > 0)
 	{
@@ -99,12 +102,12 @@ void free_redirection(cmd *c){
 void parse_members_args(cmd *c){
 
 	// Variables
-	unsigned int i = 0, j = 0, z = 0, size_args = 0, nbr_args = 0;
-	char * command = NULL;
-	unsigned int nb_cmd_members = c->nb_cmd_members;
+	unsigned int i = 0, j = 0, z = 0, size_args = 0;
+	size_t size_member = 0;
+	char * member = NULL;
 
 	// Allocation du tableau à deux dimensions
-	c->cmd_members_args = (char***) malloc(sizeof(char **) * c->nb_cmd_members);
+	c->cmd_members_args = (char***) malloc(sizeof(char **));
 
 	if (c->cmd_members_args == NULL)
 	{
@@ -121,52 +124,84 @@ void parse_members_args(cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
+
+
 	// Parcours des membres
-	while(nb_cmd_members > 0)
+	while(c->nb_cmd_members != i)
 	{
-		command = strdup(c->cmd_members[i]);
+		// Initialisation
+		member = strdup(c->cmd_members[i]);
+		size_member = strlen(member);
 		z = 0;
 
 		// Recherche le nombre de caractère du premier mot de la chaine
-		while (command[j] != ' ' || command[j] != '\0')
+		while (member[j] != ' ' && member[j] != '\0')
 			j++;
 
-		size_args = j;
-		c->cmd_members_args[i][z] = subString(command+size_args, command+j);
-		z++;
-		nbr_args++;
+		c->nb_members_args[i] = 1;
+		c->cmd_members_args[i] = (char**)malloc(sizeof(char * ) * c->nb_members_args[i]);
 
-		// Recherche des autres arguments de la chaine
-		while (command[j] != '\0')
+		if (c->cmd_members_args[i] == NULL)
 		{
-			while (command[j] != ' ')
-				j++;
-
-			// Test si c'est un argument, une redirection, ...
-			if (command[j+1] != '>' || command[j+1] != '<')
-			{
-				j++;
-				size_args = j;
-				while (command[j] != ' ')
-					j++;
-
-				c->cmd_members_args[i][z] = subString(command+size_args, command+j);
-				z++;
-				nbr_args++;
-			}
-			else
-			{
-				c->cmd_members_args[i][z] = strdup("NULL");
-				break;
-			}
+			printf("Malloc error : c->cmd_members_args[%d]", i);
+			exit(EXIT_FAILURE);
 		}
 
-		parse_redirection(i, c);
-		c->nb_members_args[i] = nbr_args;
+		// Ajout du premier membre
+		c->cmd_members_args[i][z] = subString(member, member+j); 
+		z++;
 
+		// Recherche des autres arguments de la chaine
+		while (size_member > j)
+		{
+			// Avance tant qu'il y a des espaces
+			while (member[j] != ' ' && member[j] != '\0')
+				j++;
+
+			j++;
+
+			// Test si c'est un argument, une redirection, ...
+			if (member[j] != '>' && member[j] != '<')
+			{
+				// Augmente la mémoire de une case du tableau
+				c->nb_members_args[i] += 1;
+				c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i]);
+
+				if (c->cmd_members_args[i] == NULL)
+				{
+					printf("Malloc error : c->cmd_members_args[%d]", i);
+					exit(EXIT_FAILURE);
+				}
+				
+				size_args = j;
+
+				while (member[j] != ' ' && member[j] != '\0')
+					j++;
+
+				c->cmd_members_args[i][z] = subString(member+size_args, member+j);
+				z++;
+			}
+			else
+				break;
+		}
+
+		// Augmente la mémoire de une case du tableau
+		c->nb_members_args[i] += 1;
+		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i]);
+
+		if (c->cmd_members_args[i] == NULL)
+		{
+			printf("Malloc error : c->cmd_members_args[%d]", i);
+			exit(EXIT_FAILURE);
+		}
+
+		c->cmd_members_args[i][z] = NULL;
+		c->nb_members_args[i] -= 1;
+
+		parse_redirection(i, c);
 		i++;
-		nb_cmd_members--;
-		free(command);
+		j = 0;
+		free(member);
 	}
 
 
@@ -222,48 +257,56 @@ void parse_redirection(unsigned int i, cmd *c){
 
     // Variables
     int j = 0, z = 0;
-    char * command = NULL;
-    command = strdup(c->cmd_members[i]);
 
     // Allocation du tableau à deux dimensions
     if (c->redirection == NULL)
     {
-    	c->redirection = (char ***) malloc(sizeof(char **) * c->nb_cmd_members);
+    	// Allocation du tableau à deux dimensions
+		c->redirection = (char***) malloc(sizeof(char **));
 
-    	if (c->redirection == NULL)
+		if (c->redirection == NULL)
 		{
 			printf("Malloc error : c->redirection");
 			exit(EXIT_FAILURE);
 		}
     }
 
-	if (strstr(command, "<"))
+    // Allocation de la deuxième partie du tableau
+	c->redirection[i] = (char**) malloc(sizeof(char *) * 3);
+
+	if (c->redirection == NULL)
+	{
+		printf("Malloc error : c->redirection");
+		exit(EXIT_FAILURE);
+	}
+
+	if (strstr(c->init_cmd, "<"))
 	{
 		// Parcours du membre
-		while(command[j] != '<')
+		while(c->init_cmd[j] != '<')
 			j++;
 
 		z = j;
 
-		while (command[z + 2] != ' ')
+		while (c->init_cmd[z + 2] != ' ')
 			z++;
 
-		c->redirection[i][STDIN] = subString(command + (j+2), command + z);
+		c->redirection[i][STDIN] = subString(c->init_cmd + (j+2), c->init_cmd + z);
 		c->redirection[i][STDOUT] = "NULL";
 		c->redirection[i][STDERR] = "NULL";
 	}
-	else if (strstr(command, ">"))
+	else if (strstr(c->init_cmd, ">"))
 	{
 		// Parcours du membre
-		while(command[j] != '>')
+		while(c->init_cmd[j] != '>')
 			j++;
 
 		z = j;
 
-		while (command[z + 3] != ' ')
+		while (c->init_cmd[z + 3] != ' ')
 			z++;
 
-		c->redirection[i][STDIN] = subString(command + (j+3), command + z);
+		c->redirection[i][STDIN] = subString(c->init_cmd + (j+3), c->init_cmd + z);
 		c->redirection[i][STDOUT] = "NULL";
 		c->redirection[i][STDERR] = "NULL";
 	}
