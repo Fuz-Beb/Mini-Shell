@@ -36,13 +36,16 @@ int main(int argc, char** argv)
 
 		// Ajoute les membres
 		parse_members(readlineptr, command);
+		print_members(command);
 
 		// Ajoute les arguments des membres
 		parse_members_args(command);
 
 		// Affichage des membres
+		print_members_args(command);
 
 		// Affichage des paramètres des membres
+		/*print_members(command);*/
 
 		// Affichage des redirections
 	}

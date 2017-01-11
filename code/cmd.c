@@ -166,7 +166,7 @@ void parse_members_args(cmd *c){
 
 		i++;
 		nb_cmd_members--;
-		free(command);
+		/*free(command);*/
 	}
 
 
@@ -174,9 +174,6 @@ void parse_members_args(cmd *c){
 
 //Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
-
-    int i = 0, numeroArg = 0;
-    char buffer[40];
 
     int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
