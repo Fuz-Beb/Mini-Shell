@@ -4,30 +4,90 @@
 #include "cmd.h"
 
 //Your includes come here
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+
 
 //Prints the contents of members_args to the console
 void print_members_args(cmd *c){
-    //your implementation comes here
+
+	unsigned int nb_cmd_members = c->nb_cmd_members;
+	int i = 0, j = 0;
+
+	while (nb_cmd_members > 0)
+	{
+		unsigned int nb_members_args = c->nb_members_args[i];
+
+		// Affichage du nombre d'arguments pour chaque membre
+		printf("nb_members_args[%d] = %d\n", i, c->nb_members_args[i]);
+
+		while (nb_members_args >= 0)
+		{
+			// Affichage de chaque argument
+			printf("cmd_members_args[%d][%d] = %s\n",i, j, c->cmd_members_args[i][j]);
+			nb_members_args--;
+			j++;
+		}
+		j = 0;
+		nb_cmd_members--;
+	}
 }
 
 //Frees the memory allocated to store member arguments
 void free_members_args(cmd *c){
-    //your implementation comes here
+
+    unsigned int nb_cmd_members = c->nb_cmd_members;
+	int i = 0, j = 0;
+
+	while (nb_cmd_members > 0)
+	{
+		unsigned int nb_members_args = c->nb_members_args[i];
+		while (nb_members_args >= 0)
+		{
+			free(c->cmd_members_args[i][j]);
+			nb_members_args--;
+			j++;
+		}
+		j = 0;
+		nb_cmd_members--;
+	}
+	free(c->cmd_members_args);
+	free(c->nb_members_args);
 }
 
 //Prints the contents of members to the console
 void print_members(cmd *c){
-    //your implementation comes here
+
+	unsigned int nb_cmd_members = c->nb_cmd_members;
+	int i = 0;
+
+	while (nb_cmd_members > 0)
+	{
+		printf("cmd_members_args[%d]= %s\n",i, c->cmd_members[i]);
+		i++;
+		nb_cmd_members--;
+	}
 }
 
 //Frees the memory allocated to store member information
 void free_members(cmd *c){
-    //your implementation comes here
+    
+    unsigned int nb_cmd_members = c->nb_cmd_members;
+	int i = 0;
+
+	while (nb_cmd_members > 0)
+	{
+		free(c->cmd_members[i]);
+		i++;
+		nb_cmd_members--;
+	}
+	free(c->cmd_members);
 }
 
 //Prints the redirection information for member i
 void print_redirection(cmd *c, int i){
-    //your implementation comes here
+
 }
 
 //Frees the memory allocated to store redirection info
@@ -101,6 +161,7 @@ void parse_members_args(cmd *c){
 			}
 		}
 
+		parse_redirection(i, c);
 		c->nb_members_args[i] = nbr_args;
 
 		i++;
@@ -113,7 +174,6 @@ void parse_members_args(cmd *c){
 
 //Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
-/*
     int i = 0, numeroArg = 0;
     char buffer[40];
 
@@ -140,12 +200,86 @@ void parse_members(char *s,cmd *c){
     }
 
     c->nb_cmd_members = numeroArg;
-*/
 }
 
 //Remplit les champs redir et type_redir
 void parse_redirection(unsigned int i, cmd *c){
-    //your implementation comes here
+    
+    // Variables
+    int j = 0, z = 0;
+    char * command = NULL;
+    command = strdup(c->cmd_members[i]);
+
+    // Allocation du tableau à deux dimensions
+    if (c->redirection == NULL)
+    {
+    	c->redirection = (char ***) malloc(sizeof(char **) * c->nb_cmd_members);
+
+    	if (c->redirection == NULL)
+		{
+			printf("Malloc error : c->redirection");
+			exit(EXIT_FAILURE);
+		}
+    }
+
+	if (strstr(command, "<"))
+	{
+		// Parcours du membre
+		while(command[j] != '<')
+			j++;
+
+		z = j;
+
+		while (command[z + 2] != ' ')
+			z++;
+
+		c->redirection[i][STDIN] = subString(command + (j+2), command + z);
+		c->redirection[i][STDOUT] = "NULL";
+		c->redirection[i][STDERR] = "NULL";
+	}
+	else if (strstr(command, ">"))
+	{
+		// Parcours du membre
+		while(command[j] != '>')
+			j++;
+
+		z = j;
+
+		while (command[z + 3] != ' ')
+			z++;
+
+		c->redirection[i][STDIN] = subString(command + (j+3), command + z);
+		c->redirection[i][STDOUT] = "NULL";
+		c->redirection[i][STDERR] = "NULL";
+	}
+	else
+	{
+		c->redirection[i][STDIN] = "NULL";
+		c->redirection[i][STDOUT] = "NULL";
+		c->redirection[i][STDERR] = "NULL";
+	}
+}
+
+// Initialise l'ensemble des champs de la structure
+cmd * init(){
+
+	cmd * command = (cmd*) malloc (sizeof(cmd));
+
+	if (command == NULL)
+	{
+		printf("Malloc error with allocation of struc");
+		exit(EXIT_FAILURE);
+	}
+
+	command->init_cmd = NULL;
+	command->nb_cmd_members = 0;
+	command->cmd_members = NULL;
+	command->cmd_members_args = NULL;
+	command->nb_members_args = 0;
+	command->redirection = NULL;
+	command->redirection_type = 0;
+
+	return command;
 }
 
 // Permet de retourner une partie d'une chaine

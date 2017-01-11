@@ -51,5 +51,8 @@ void parse_members(char *s,cmd *c);
 //Remplit les champs redir et type_redir
 void parse_redirection(unsigned int i, cmd *c);
 
+// Initialise l'ensemble des champs de la structure
+cmd * init();
+
 // Permet de retourner une partie d'une chaine
 char * subString(char * start, char * end);

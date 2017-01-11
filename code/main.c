@@ -10,13 +10,14 @@
 //To complete
 int main(int argc, char** argv)
 {
-	//..........
+	// Variables
 	int ret = MYSHELL_CMD_OK;
 	char* readlineptr;
 	struct passwd* infos;
 	char str[1024];
 	char hostname[256];
 	char workingdirectory[256];
+	cmd * command = NULL;
 
 	//..........
 	while(ret != MYSHELL_FCT_EXIT)
@@ -28,20 +29,23 @@ int main(int argc, char** argv)
         //Print it to the console
 
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
-		readlineptr = readline(str);
+		readlineptr = readline(str); 
 
-// DEBUT TEMP Pierrick
-		cmd * commandStruct = (cmd*)malloc(sizeof(cmd));
-		parse_members(readlineptr, commandStruct);
-// FIN TEMP Pierrick
+		// Initialise la structure
+		command = init();
 
-				//Your code goes here.......
-        //Parse the comand
-        //Execute the comand
-        //Clean the house
-        //..........
+		// Ajoute les membres
+		parse_members(readlineptr, command);
 
+		// Ajoute les arguments des membres
+		parse_members_args(command);
+
+		// Affichage des membres
+
+		// Affichage des paramètres des membres
+
+		// Affichage des redirections
 	}
-	//..........
+	// return 0
 	return 0;
 }
