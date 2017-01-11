@@ -7,7 +7,8 @@
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
-
+#define APPEND 0
+#define OVERRIDE 1
 
 //Prints the contents of members_args to the console
 void print_members_args(cmd *c){
@@ -91,11 +92,56 @@ void free_members(cmd *c){
 //Prints the redirection information for member i
 void print_redirection(cmd *c, int i){
 
+	if(c->redirection[i][STDIN] != NULL)
+	{
+		printf("redirection[%d][STDIN] = %s\n", i, c->redirection[i][STDIN]);
+		printf("redirection_type[%d][STDIN] = %d\n", i, c->redirection_type[i][STDIN]);
+	}
+
+	if(c->redirection[i][STDOUT] != NULL)
+	{
+		printf("redirection[%d][STDOUT] = %s\n", i, c->redirection[i][STDOUT]);
+		printf("redirection_type[%d][STDOUT] = %d\n", i, c->redirection_type[i][STDOUT]);
+	}
+
+	if(c->redirection[i][STDERR] != NULL)
+	{
+		printf("redirection[%d][STDERR] = %s\n", i, c->redirection[i][STDERR]);
+		printf("redirection_type[%d][STDERR] = %d\n", i, c->redirection_type[i][STDERR]);
+	}
+
 }
 
 //Frees the memory allocated to store redirection info
 void free_redirection(cmd *c){
-    //your implementation comes here
+
+		unsigned int nb_cmd_members = c->nb_cmd_members;
+		int i = 0;
+
+		while (nb_cmd_members > 0) {
+			
+			unsigned int nb_members_args = c->nb_members_args[i];
+
+			while (nb_members_args >= 0) {
+
+				if(c->redirection[i][STDIN] != NULL)
+						free(c->redirection[i][STDIN]);
+
+				if(c->redirection[i][STDOUT] != NULL)
+						free(c->redirection[i][STDOUT]);
+
+				if(c->redirection[i][STDERR] != NULL)
+						free(c->redirection[i][STDERR]);
+
+				nb_members_args--;
+				i++;
+			}
+
+			nb_cmd_members--;
+		}
+
+		free(c->redirection);
+
 }
 
 //Remplit les champs cmd_args et nb_args_membres
@@ -292,8 +338,9 @@ void parse_redirection(unsigned int i, cmd *c){
 			z++;
 
 		c->redirection[i][STDIN] = subString(c->init_cmd + (j+2), c->init_cmd + z);
-		c->redirection[i][STDOUT] = "NULL";
-		c->redirection[i][STDERR] = "NULL";
+		c->redirection[i][STDOUT] = NULL;
+		c->redirection[i][STDERR] = NULL;
+
 	}
 	else if (strstr(c->init_cmd, ">"))
 	{
@@ -307,14 +354,15 @@ void parse_redirection(unsigned int i, cmd *c){
 			z++;
 
 		c->redirection[i][STDIN] = subString(c->init_cmd + (j+3), c->init_cmd + z);
-		c->redirection[i][STDOUT] = "NULL";
-		c->redirection[i][STDERR] = "NULL";
+		c->redirection[i][STDOUT] = NULL;
+		c->redirection[i][STDERR] = NULL;
+
 	}
 	else
 	{
-		c->redirection[i][STDIN] = "NULL";
-		c->redirection[i][STDOUT] = "NULL";
-		c->redirection[i][STDERR] = "NULL";
+		c->redirection[i][STDIN] = NULL;
+		c->redirection[i][STDOUT] = NULL;
+		c->redirection[i][STDERR] = NULL;
 	}
 }
 
