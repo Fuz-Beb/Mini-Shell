@@ -39,7 +39,7 @@ void free_redirection(cmd *c){
 void parse_members_args(cmd *c){
 
 	// Variables
-	unsigned int i = 0, j = 0, z = 0, size_args = 0;
+	unsigned int i = 0, j = 0, z = 0, size_args = 0, nbr_args = 0;
 	char * command = NULL;
 	unsigned int nb_cmd_members = c->nb_cmd_members;
 
@@ -52,24 +52,37 @@ void parse_members_args(cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
+	// Allocation du tableau de int
+	c->nb_members_args = (unsigned int*) malloc (sizeof(int) * c->nb_cmd_members);
+
+	if (c->nb_members_args == NULL)
+	{
+		printf("Malloc error : c->nb_members_args");
+		exit(EXIT_FAILURE); 
+	}
+
 	// Parcours des membres
 	while(nb_cmd_members > 0)
 	{
 		command = strdup(c->cmd_members[i]);
 		z = 0;
 
+		// Recherche le nombre de caractère du premier mot de la chaine 
 		while (command[j] != ' ' || command[j] != '\0')
 			j++;
 
 		size_args = j;
 		c->cmd_members_args[i][z] = subString(command+size_args, command+j);
 		z++;
+		nbr_args++;
 
+		// Recherche des autres arguments de la chaine
 		while (command[j] != '\0')
 		{
 			while (command[j] != ' ')
 				j++;
 
+			// Test si c'est un argument, une redirection, ...
 			if (command[j+1] != '>' || command[j+1] != '<')
 			{
 				j++;
@@ -79,6 +92,7 @@ void parse_members_args(cmd *c){
 
 				c->cmd_members_args[i][z] = subString(command+size_args, command+j);
 				z++;
+				nbr_args++;
 			}
 			else
 			{
@@ -86,6 +100,8 @@ void parse_members_args(cmd *c){
 				break;
 			}
 		}
+
+		c->nb_members_args[i] = nbr_args;
 
 		i++;
 		nb_cmd_members--;
