@@ -392,8 +392,9 @@ cmd * init(){
 char * subString(char * start, char * end)
 {
     size_t count = 0;
-    size_t diffLengthStartEnd = (size_t)end-(size_t)start;
-    char * cpyString = (char*)malloc(diffLengthStartEnd + 1);
+    int diffLengthStartEnd = strlen(start) - strlen(end);
+    char * cpyString = (char*)malloc((sizeof(char) * diffLengthStartEnd + 1));
+    printf("DIFF : %d\n", diffLengthStartEnd);
 
     if (cpyString == NULL)
     {
