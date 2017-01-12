@@ -188,7 +188,7 @@ void parse_members_args(cmd *c){
 		// Recherche des autres arguments de la chaine
 		while (size_member > j)
 		{
-			// Avance tant qu'il n'y a pas des espaces
+			// Avance tant qu'il y a des espaces
 			while (member[j] != ' ' && member[j] != '\0')
 				j++;
 
@@ -222,7 +222,8 @@ void parse_members_args(cmd *c){
 		}
 
 		// Augmente la mémoire du tableau
-		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i] + 1);
+		c->nb_members_args[i] += 1;
+		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i]);
 
 		if (c->cmd_members_args[i] == NULL)
 		{
@@ -232,6 +233,7 @@ void parse_members_args(cmd *c){
 
 		// Mise à NULL du dernier argument
 		c->cmd_members_args[i][z] = NULL;
+		c->nb_members_args[i] -= 1;
 
 		// Appel la fonction parse_redirection
 		parse_redirection(i, c);
@@ -301,13 +303,13 @@ void parse_redirection(unsigned int i, cmd *c){
     if (c->redirection == NULL)
     {
     	// Allocation du tableau à deux dimensions
-			c->redirection = (char***) malloc(sizeof(char **));
+		c->redirection = (char***) malloc(sizeof(char **));
 
-			if (c->redirection == NULL)
-			{
-				printf("Malloc error : c->redirection");
-				exit(EXIT_FAILURE);
-			}
+		if (c->redirection == NULL)
+		{
+			printf("Malloc error : c->redirection");
+			exit(EXIT_FAILURE);
+		}
     }
 
     // Allocation de la deuxième partie du tableau
@@ -391,7 +393,7 @@ void parse_redirection(unsigned int i, cmd *c){
 
 				c->redirection[i][STDIN] = NULL;
 				c->redirection[i][STDOUT] = subString(command + start, command + end);
-				c->redirection[i][STDERR] = NULL;		
+				c->redirection[i][STDERR] = NULL;
 			}
 			else
 			{
@@ -424,7 +426,7 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);
 			}
 		}
-		
+
 	}
 	/*print_redirection(c, i);*/
 }
