@@ -39,19 +39,23 @@ void print_members_args(cmd *c){
 //Frees the memory allocated to store member arguments
 void free_members_args(cmd *c){
 
-    unsigned int nb_cmd_members = c->nb_cmd_members;
+  unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0, j = 0;
 
 	while (nb_cmd_members > 0)
 	{
 		unsigned int nb_members_args = c->nb_members_args[i];
-		while (nb_members_args >= 0)
+
+		while (c->cmd_members_args[i][j] != NULL)
 		{
+
 			free(c->cmd_members_args[i][j]);
 			nb_members_args--;
 			j++;
 		}
+
 		j = 0;
+		i++;
 		nb_cmd_members--;
 	}
 	free(c->cmd_members_args);
@@ -110,7 +114,7 @@ void free_redirection(cmd *c){
 
 			unsigned int nb_members_args = c->nb_members_args[i];
 
-			while (nb_members_args >= 0) {
+			while (c->redirection[i][STDIN] != NULL && c->redirection[i][STDOUT] != NULL && c->redirection[i][STDERR] != NULL) {
 
 				if(c->redirection[i][STDIN] != NULL)
 						free(c->redirection[i][STDIN]);

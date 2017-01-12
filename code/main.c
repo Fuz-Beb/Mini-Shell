@@ -44,6 +44,11 @@ int main(int argc, char** argv)
 
 		// Affichage des redirections
 		/*print_redirection(command, 1);*/
+
+		free_members_args(command);
+		free_members(command);
+		free_redirection(command);
+
 	}
 	// return 0
 	return 0;
