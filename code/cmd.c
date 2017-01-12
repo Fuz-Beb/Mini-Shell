@@ -92,24 +92,12 @@ void free_members(cmd *c){
 //Prints the redirection information for member i
 void print_redirection(cmd *c, int i){
 
-	if(c->redirection[i][STDIN] != NULL)
-	{
-		printf("redirection[%d][STDIN] = %s\n", i, c->redirection[i][STDIN]);
-		printf("redirection_type[%d][STDIN] = %d\n", i, c->redirection_type[i][STDIN]);
-	}
+	printf("redirection[%d][STDIN] = %s\n", i, c->redirection[i][STDIN]);
+	printf("redirection[%d][STDOUT] = %s\n", i, c->redirection[i][STDOUT]);
+	printf("redirection[%d][STDERR] = %s\n", i, c->redirection[i][STDERR]);
 
 	if(c->redirection[i][STDOUT] != NULL)
-	{
-		printf("redirection[%d][STDOUT] = %s\n", i, c->redirection[i][STDOUT]);
 		printf("redirection_type[%d][STDOUT] = %d\n", i, c->redirection_type[i][STDOUT]);
-	}
-
-	if(c->redirection[i][STDERR] != NULL)
-	{
-		printf("redirection[%d][STDERR] = %s\n", i, c->redirection[i][STDERR]);
-		printf("redirection_type[%d][STDERR] = %d\n", i, c->redirection_type[i][STDERR]);
-	}
-
 }
 
 //Frees the memory allocated to store redirection info
@@ -207,7 +195,7 @@ void parse_members_args(cmd *c){
 			j++;
 
 			// Test si c'est un argument, une redirection, ...
-			if (member[j] != '>' && member[j] != '<')
+			if (member[j] != '>' && member[j] != '<' && (member[j] != '2' && member[j+1] != '>'))
 			{
 				// Augmente la mémoire de une case du tableau
 				c->nb_members_args[i] += 1;
@@ -246,7 +234,7 @@ void parse_members_args(cmd *c){
 		c->cmd_members_args[i][z] = NULL;
 
 		// Appel la fonction parse_redirection
-		/*parse_redirection(i, c);*/
+		parse_redirection(i, c);
 
 		i++;
 		j = 0;
@@ -294,7 +282,8 @@ void parse_members(char *s,cmd *c){
 		if(c->init_cmd[pointFin + 1] != '|')
 				break;
 
-		pointDeb = pointFin + 3;
+		pointFin += 3;
+		pointDeb = pointFin;
 	}
 
 	c->nb_cmd_members = nbrMembre;
@@ -330,7 +319,16 @@ void parse_redirection(unsigned int i, cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
-	while (size_command > start)
+	// Allocation du tableau redirection
+	c->redirection_type = (int**) malloc(sizeof(int *));
+
+	if (c->redirection == NULL)
+	{
+		printf("Malloc error : c->redirection");
+		exit(EXIT_FAILURE);
+	}
+
+	while (size_command > start + 1)
 	{
 		// On cherche un espace pour vérifier si le caractère suivant est un opérateur de redirection
 		while (command[start] != ' ' && command[start] != '2' && command[start] != '\0')
@@ -346,7 +344,8 @@ void parse_redirection(unsigned int i, cmd *c){
 				start += 2;
 				end = start;
 
-				while (command[start] != ' ' && command[start] != '\0')
+				// Parcours la chaine a droite de <
+				while (command[end] != ' ' && command[end] != '\0')
 					end++;
 
 				c->redirection[i][STDIN] = subString(command + start, command + end);
@@ -363,19 +362,36 @@ void parse_redirection(unsigned int i, cmd *c){
 		{
 			if (command[start+1] == ' ' || (command[start+1] == '>' && command[start+2] == ' '))
 			{
+				// Allocation de la deuxième partie du tableau redirection
+				c->redirection_type[i] = (int*) malloc(sizeof(int));
+
+				if (c->redirection_type[i] == NULL)
+				{
+					printf("Malloc error : c->redirection_type[i]");
+					exit(EXIT_FAILURE);
+				}
+
+				// Test si c'est un double >>
 				if (command[start+1] == '>')
+				{
 					start += 3;
+					c->redirection_type[i][STDOUT] = APPEND;
+				}
 				else
+				{
 					start += 2;
+					c->redirection_type[i][STDOUT] = OVERRIDE;
+				}
 
 				end = start;
 
-				while (command[start] != '\0')
+				// Parcours la chaine a droite de >
+				while (command[end] != '\0')
 					end++;
 
 				c->redirection[i][STDIN] = NULL;
 				c->redirection[i][STDOUT] = subString(command + start, command + end);
-				c->redirection[i][STDERR] = NULL;	
+				c->redirection[i][STDERR] = NULL;		
 			}
 			else
 			{
@@ -394,7 +410,8 @@ void parse_redirection(unsigned int i, cmd *c){
 
 				end = start;
 
-				while (command[start] != '\0')
+				// Parcours la chaine a droite de 2>
+				while (command[end] != '\0')
 					end++;
 
 				c->redirection[i][STDIN] = NULL;
@@ -407,7 +424,9 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);
 			}
 		}
+		
 	}
+	print_redirection(c, i);
 }
 
 // Initialise l'ensemble des champs de la structure
@@ -436,9 +455,8 @@ cmd * init(){
 char * subString(char * start, char * end)
 {
     size_t count = 0;
-    int diffLengthStartEnd = strlen(start) - strlen(end);
-    char * cpyString = (char*)malloc((sizeof(char) * diffLengthStartEnd + 1));
-    printf("DIFF : %d\n", diffLengthStartEnd);
+    size_t diffLengthStartEnd = (size_t)end - (size_t)start;
+    char * cpyString = (char*)malloc(sizeof(char) * (diffLengthStartEnd + 1));
 
     if (cpyString == NULL)
     {

@@ -42,9 +42,6 @@ int main(int argc, char** argv)
 		parse_members_args(command);
 		print_members_args(command);
 
-		// Affichage des paramètres des membres
-		/*print_members(command);*/
-
 		// Affichage des redirections
 		/*print_redirection(command, 1);*/
 	}
