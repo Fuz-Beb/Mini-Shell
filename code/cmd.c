@@ -297,7 +297,6 @@ void parse_members(char *s,cmd *c){
 				break;
 
 		pointDeb = pointFin + 3;
-		pointFin = pointDeb;
 	}
 
 	c->nb_cmd_members = nbrMembre;
@@ -307,7 +306,7 @@ void parse_members(char *s,cmd *c){
 void parse_redirection(unsigned int i, cmd *c){
 
     // Variables
-    int j = 0, z = 0;
+    int start = 0, end = 0;
     char * command = strdup(c->cmd_members[i]);
     size_t size_command = strlen(command);
 
@@ -333,20 +332,26 @@ void parse_redirection(unsigned int i, cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
-	while (size_command > j)
+	while (size_command > start)
 	{
 		// On cherche un espace pour vérifier si le caractère suivant est un opérateur de redirection
-		while (command[j] != ' ' && command[j] != '2' && command[j] != '\0')
-			j++;
+		while (command[start] != ' ' && command[start] != '2' && command[start] != '\0')
+			start++;
 
-		j++;
+		start++;
 
 		// Si c'est un STDIN
-		if (command[j] == '<')
+		if (command[start] == '<')
 		{
-			if (command[j+1] == ' ')
+			if (command[start+1] == ' ')
 			{
-				c->redirection[i][STDIN] = subString(???);
+				start += 2;
+				end = start;
+
+				while (command[start] != ' ' && command[start] != '\0')
+					end++;
+
+				c->redirection[i][STDIN] = subString(command + start, command + end);
 				c->redirection[i][STDOUT] = NULL;
 				c->redirection[i][STDERR] = NULL;
 			}
@@ -356,11 +361,23 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);
 			}
 		}
-		else if (command[j] == '>') // Si c'est un STDOUT
+		else if (command[start] == '>') // Si c'est un STDOUT
 		{
-			if (command[j+1] == ' ' || command[j+1] == '>')
+			if (command[start+1] == ' ' || (command[start+1] == '>' && command[start+2] == ' '))
 			{
-				// Traitement OK
+				if (command[start+1] == '>')
+					start += 3;
+				else
+					start += 2;
+
+				end = start;
+
+				while (command[start] != '\0')
+					end++;
+
+				c->redirection[i][STDIN] = NULL;
+				c->redirection[i][STDOUT] = subString(command + start, command + end);
+				c->redirection[i][STDERR] = NULL;	
 			}
 			else
 			{
@@ -368,11 +385,23 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);	
 			}
 		}
-		else if (command[j] == '2') // Si c'est  STDERR
+		else if (command[start] == '2') // Si c'est  STDERR
 		{
-			if (command[j+1] == '>' || (command[j+1] == '>' && command[j+2] == '>'))
+			if (command[start+1] == '>'  && (command[start+2] == ' ' || command[start+2] == '>'))
 			{
-				// Traitement OK
+				if (command[start+2] == '>')
+					start += 4;
+				else
+					start += 3;
+
+				end = start;
+
+				while (command[start] != '\0')
+					end++;
+
+				c->redirection[i][STDIN] = NULL;
+				c->redirection[i][STDOUT] = NULL;
+				c->redirection[i][STDERR] = subString(command + start, command + end);
 			}
 			else
 			{
@@ -380,58 +409,6 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);	
 			}
 		}
-	}
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-	if (strstr(command, "<"))
-	{
-		// Parcours du membre
-		while(c->init_cmd[j] != '<')
-			j++;
-
-		z = j;
-
-		while (c->init_cmd[z + 2] != ' ')
-			z++;
-
-		c->redirection[i][STDIN] = subString(c->init_cmd + (j+2), c->init_cmd + z);
-		c->redirection[i][STDOUT] = NULL;
-		c->redirection[i][STDERR] = NULL;
-
-	}
-	else if (strstr(c->init_cmd, ">"))
-	{
-		// Parcours du membre
-		while(c->init_cmd[j] != '>')
-			j++;
-
-		z = j;
-
-		while (c->init_cmd[z + 3] != ' ')
-			z++;
-
-		c->redirection[i][STDIN] = subString(c->init_cmd + (j+3), c->init_cmd + z);
-		c->redirection[i][STDOUT] = NULL;
-		c->redirection[i][STDERR] = NULL;
-
-	}
-	else
-	{
-		c->redirection[i][STDIN] = NULL;
-		c->redirection[i][STDOUT] = NULL;
-		c->redirection[i][STDERR] = NULL;
 	}
 }
 
