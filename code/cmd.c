@@ -221,17 +221,19 @@ void parse_members_args(cmd *c){
 				
 				size_args = j;
 
+				// Cherche le prochain espace
 				while (member[j] != ' ' && member[j] != '\0')
 					j++;
 
+				// Ajoute la chaine avec la bonne taille dans le tableau
 				c->cmd_members_args[i][z] = subString(member+size_args, member+j);
 				z++;
-			}
-			else
+			} 
+			else // Sort de la boucle WHILE si c'est une redirection
 				break;
 		}
 
-		// Augmente la mémoire de une case du tableau
+		// Augmente la mémoire du tableau
 		c->nb_members_args[i] += 1;
 		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i]);
 
@@ -241,10 +243,13 @@ void parse_members_args(cmd *c){
 			exit(EXIT_FAILURE);
 		}
 
+		// Mise à NULL du dernier argument
 		c->cmd_members_args[i][z] = NULL;
 		c->nb_members_args[i] -= 1;
 
-		parse_redirection(i, c);
+		// Appel la fonction parse_redirection 
+		/*parse_redirection(i, c);*/
+		
 		i++;
 		j = 0;
 		free(member);
@@ -303,6 +308,8 @@ void parse_redirection(unsigned int i, cmd *c){
 
     // Variables
     int j = 0, z = 0;
+    char * command = strdup(c->cmd_members[i]);
+    size_t size_command = strlen(command);
 
     // Allocation du tableau à deux dimensions
     if (c->redirection == NULL)
@@ -326,7 +333,66 @@ void parse_redirection(unsigned int i, cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
-	if (strstr(c->init_cmd, "<"))
+	while (size_command > j)
+	{
+		// On cherche un espace pour vérifier si le caractère suivant est un opérateur de redirection
+		while (command[j] != ' ' && command[j] != '2' && command[j] != '\0')
+			j++;
+
+		j++;
+
+		if (command[j] == '<')
+		{
+			if (command[j+1] == ' ')
+			{
+				// TRAITEMENT OK
+			}
+			else
+			{
+				printf("La commande est incorrect. Mauvaise redirection");
+				exit(EXIT_FAILURE);
+			}
+		}
+		else if (command[j] == '>')
+		{
+			if (command[j+1] == ' ' || command[j+1] == '>')
+			{
+				// Traitement OK
+			}
+			else
+			{
+				printf("La commande est incorrect. Mauvaise redirection");
+				exit(EXIT_FAILURE);	
+			}
+		}
+		else if (command[j] == '2')
+		{
+			if (command[j+1] == '>' || (command[j+1] == '>' && command[j+2] == '>'))
+			{
+				// Traitement OK
+			}
+			else
+			{
+				printf("La commande est incorrect. Mauvaise redirection");
+				exit(EXIT_FAILURE);	
+			}
+		}
+	}
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	if (strstr(command, "<"))
 	{
 		// Parcours du membre
 		while(c->init_cmd[j] != '<')
