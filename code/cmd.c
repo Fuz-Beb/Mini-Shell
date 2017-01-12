@@ -119,7 +119,7 @@ void free_redirection(cmd *c){
 		int i = 0;
 
 		while (nb_cmd_members > 0) {
-			
+
 			unsigned int nb_members_args = c->nb_members_args[i];
 
 			while (nb_members_args >= 0) {
@@ -194,13 +194,13 @@ void parse_members_args(cmd *c){
 		}
 
 		// Ajout du premier membre
-		c->cmd_members_args[i][z] = subString(member, member+j); 
+		c->cmd_members_args[i][z] = subString(member, member+j);
 		z++;
 
 		// Recherche des autres arguments de la chaine
 		while (size_member > j)
 		{
-			// Avance tant qu'il y a des espaces
+			// Avance tant qu'il n'y a pas des espaces
 			while (member[j] != ' ' && member[j] != '\0')
 				j++;
 
@@ -218,7 +218,7 @@ void parse_members_args(cmd *c){
 					printf("Malloc error : c->cmd_members_args[%d]", i);
 					exit(EXIT_FAILURE);
 				}
-				
+
 				size_args = j;
 
 				// Cherche le prochain espace
@@ -228,14 +228,13 @@ void parse_members_args(cmd *c){
 				// Ajoute la chaine avec la bonne taille dans le tableau
 				c->cmd_members_args[i][z] = subString(member+size_args, member+j);
 				z++;
-			} 
+			}
 			else // Sort de la boucle WHILE si c'est une redirection
 				break;
 		}
 
 		// Augmente la mémoire du tableau
-		c->nb_members_args[i] += 1;
-		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i]);
+		c->cmd_members_args[i] = realloc(c->cmd_members_args[i], sizeof(char * ) * c->nb_members_args[i] + 1);
 
 		if (c->cmd_members_args[i] == NULL)
 		{
@@ -245,11 +244,10 @@ void parse_members_args(cmd *c){
 
 		// Mise à NULL du dernier argument
 		c->cmd_members_args[i][z] = NULL;
-		c->nb_members_args[i] -= 1;
 
-		// Appel la fonction parse_redirection 
+		// Appel la fonction parse_redirection
 		/*parse_redirection(i, c);*/
-		
+
 		i++;
 		j = 0;
 		free(member);
@@ -315,13 +313,13 @@ void parse_redirection(unsigned int i, cmd *c){
     if (c->redirection == NULL)
     {
     	// Allocation du tableau à deux dimensions
-		c->redirection = (char***) malloc(sizeof(char **));
+			c->redirection = (char***) malloc(sizeof(char **));
 
-		if (c->redirection == NULL)
-		{
-			printf("Malloc error : c->redirection");
-			exit(EXIT_FAILURE);
-		}
+			if (c->redirection == NULL)
+			{
+				printf("Malloc error : c->redirection");
+				exit(EXIT_FAILURE);
+			}
     }
 
     // Allocation de la deuxième partie du tableau
@@ -365,7 +363,7 @@ void parse_redirection(unsigned int i, cmd *c){
 			else
 			{
 				printf("La commande est incorrect. Mauvaise redirection");
-				exit(EXIT_FAILURE);	
+				exit(EXIT_FAILURE);
 			}
 		}
 		else if (command[j] == '2') // Si c'est  STDERR
@@ -377,12 +375,12 @@ void parse_redirection(unsigned int i, cmd *c){
 			else
 			{
 				printf("La commande est incorrect. Mauvaise redirection");
-				exit(EXIT_FAILURE);	
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
 
-	
+
 
 
 
