@@ -432,7 +432,7 @@ void parse_redirection(unsigned int i, cmd *c){
 		}
 
 	}
-	print_redirection(c, i);
+	/*print_redirection(c, i);*/
 }
 
 // Initialise l'ensemble des champs de la structure
