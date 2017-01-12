@@ -19,6 +19,9 @@ int main(int argc, char** argv)
 	char workingdirectory[256];
 	cmd * command = NULL;
 
+	// Initialise la structure
+	command = init();
+
 	//..........
 	while(ret != MYSHELL_FCT_EXIT)
 	{
@@ -31,19 +34,18 @@ int main(int argc, char** argv)
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
 		readlineptr = readline(str);
 
-		// Initialise la structure
-		command = init();
+		sleep(2);
 
 		// Ajoute les membres
 		parse_members(readlineptr, command);
-		print_members(command);
+		/*print_members(command);*/
 
 		// Ajoute les arguments des membres
 		parse_members_args(command);
-		print_members_args(command);
+		/*print_members_args(command);*/
 
-		// Affichage des redirections
-		/*print_redirection(command, 1);*/
+		// Appel de la fonction permettant de créer les pipes, les fork et les execs
+		exec_command(command);
 	}
 	// return 0
 	return 0;
