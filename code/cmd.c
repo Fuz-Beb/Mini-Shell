@@ -341,11 +341,14 @@ void parse_redirection(unsigned int i, cmd *c){
 
 		j++;
 
+		// Si c'est un STDIN
 		if (command[j] == '<')
 		{
 			if (command[j+1] == ' ')
 			{
-				// TRAITEMENT OK
+				c->redirection[i][STDIN] = subString(???);
+				c->redirection[i][STDOUT] = NULL;
+				c->redirection[i][STDERR] = NULL;
 			}
 			else
 			{
@@ -353,7 +356,7 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);
 			}
 		}
-		else if (command[j] == '>')
+		else if (command[j] == '>') // Si c'est un STDOUT
 		{
 			if (command[j+1] == ' ' || command[j+1] == '>')
 			{
@@ -365,7 +368,7 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);	
 			}
 		}
-		else if (command[j] == '2')
+		else if (command[j] == '2') // Si c'est  STDERR
 		{
 			if (command[j+1] == '>' || (command[j+1] == '>' && command[j+2] == '>'))
 			{
