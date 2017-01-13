@@ -34,12 +34,10 @@ int main(int argc, char** argv)
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
 		readlineptr = readline(str);
 
-		sleep(2);
 
 		// Ajoute les membres
 		parse_members(readlineptr, command);
 		/*print_members(command);*/
-
 		// Ajoute les arguments des membres
 		parse_members_args(command);
 		/*print_members_args(command);*/
