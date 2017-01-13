@@ -41,9 +41,10 @@ int main(int argc, char** argv)
 		// Ajoute les arguments des membres
 		parse_members_args(command);
 		/*print_members_args(command);*/
-
+		
 		// Appel de la fonction permettant de créer les pipes, les fork et les execs
 		exec_command(command);
+
 	}
 	// return 0
 	return 0;
