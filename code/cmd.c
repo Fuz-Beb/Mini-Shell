@@ -253,7 +253,15 @@ void parse_members_args(cmd *c){
 //Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
+	// Variables
     int pointFin = 0, pointDeb = 0, nbrMembre = 0;
+
+    // Insertion de la commande dans la structure
+    c->init_cmd = strdup(s);
+
+    // Si la commande est vide alors aucun traitement
+    if (strlen(s) == 0)
+    	return ;
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
@@ -263,9 +271,6 @@ void parse_members(char *s,cmd *c){
 		printf("Malloc error : c->cmd_members");
 		exit(EXIT_FAILURE);
 	}
-
-    // Insertion de la commande dans la structure
-    c->init_cmd = strdup(s);
 
 	// Calcul du nombre de membre
 	while(c->init_cmd[pointFin + 1] != '\0')

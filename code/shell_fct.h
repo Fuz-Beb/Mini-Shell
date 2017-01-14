@@ -5,4 +5,5 @@
 #define MYSHELL_FCT_EXIT 1
 
 //Execute a command
-int exec_command(cmd *c);
+int exec_command(cmd* my_cmd);
+void alarmHandler();
