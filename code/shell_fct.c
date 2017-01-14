@@ -21,14 +21,14 @@ pid_t pid;
 // Chien de garde
 void alarmHandler()
 {
-		kill(pid, SIGKILL);
+	kill(pid, SIGKILL);
 }
 
 // Création des pipes et processus fils pour l'execution de la commande
 int exec_command(cmd * my_cmd)
 {
 	// Variable
-	int i = 0, j = 0;
+	int i = 0, status;
 	int ** tube = NULL;
 
 	// Retourne -1 si la commande est vide
@@ -39,7 +39,7 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members > 1)
 	{
 		// Allocation du tube
-		tube = (int**) malloc(sizeof(int*) * 2);
+		tube = (int**) malloc(sizeof(int*) * (my_cmd->nb_cmd_members - 1));
 
 		if(tube == NULL)
 		{
@@ -49,11 +49,10 @@ int exec_command(cmd * my_cmd)
 	}
 
 	// Parcours de l'ensemble des membres un par un
-	while(my_cmd->nb_cmd_members > j)
+	while(my_cmd->nb_cmd_members > i)
 	{
 		// Inutile d'utiliser des tubes si un seul membre dans la commande
-		// Utilisation de deux tubes maximum j < 2
-		if (my_cmd->nb_cmd_members > 1 && j < 2)
+		if (my_cmd->nb_cmd_members > 1)
 		{
 			// Allocation de la deuxième dimension du tube
 			tube[i] = (int*) malloc(sizeof(int) * 2);
@@ -68,10 +67,6 @@ int exec_command(cmd * my_cmd)
 			pipe(tube[i]);
 		}
 
-        /*// Réouverture du premier pipe
-		if (i == 0 && j > 0)
-			pipe(tube[i]);*/
-
 		// Création du processus fils
 		pid = fork();
 		if(pid == 0) // Traitement du processus fils
@@ -80,28 +75,15 @@ int exec_command(cmd * my_cmd)
 			if (my_cmd->nb_cmd_members > 1)
 			{
 				// Pas de données en input si il y a un seul membre
-				// La deuxième condition permet d'aller dans la boucle même si i = 0
-				// Je repasserai i à 0 dès qu'il arrive à 2 car nous avons besoin que de deux pipes.
-				if (i != 0 || j > 0)
+				if (i > 0)
 				{
-					if (i == 0 && j != 0)
-					{
-						close(tube[i + 1][1]);
-						dup2(tube[i + 1][0], 0);
-						close(tube[i + 1][0]);
-					}
-					else
-					{
-
-						close(tube[i-1][1]);
-						dup2(tube[i-1][0], 0);
-						close(tube[i-1][0]);
-					}
-
+                    close(tube[i-1][1]);
+                    dup2(tube[i-1][0], 0);
+					close(tube[i-1][0]);
 				}
 				// Pas besoin de redirigé le résultat de la commande si c'est le dernier membre
-				// Il sera affiché directement sur l'écran
-				if (my_cmd->nb_cmd_members > j + 1)
+				// Il sera affiché directement sur le terminal
+				if (my_cmd->nb_cmd_members > i + 1)
 				{
 					close(tube[i][0]);
 					dup2(tube[i][1], 1);
@@ -109,11 +91,11 @@ int exec_command(cmd * my_cmd)
 				}
 			}
 
-			// Protection au cas ou la commande serai NULL
-			if(my_cmd->cmd_members_args[j][0] != NULL)
+			// Protection au cas ou la commande serai égale à NULL
+			if(my_cmd->cmd_members_args[i][0] != NULL)
 			{
-				// Execution de la commande
-				if((execvp(my_cmd->cmd_members_args[j][0], my_cmd->cmd_members_args[j]))==-1)
+				// Execution de la commande avec les arguments de la structure
+				if((execvp(my_cmd->cmd_members_args[i][0], my_cmd->cmd_members_args[i])) == -1)
 				{
 					printf("Commande incorrecte !!\n");
 					exit(EXIT_FAILURE);
@@ -123,41 +105,41 @@ int exec_command(cmd * my_cmd)
 			return 0;
 		}
 
-		// Incrémentation de i : Indice des tubes (0 ou 1)
-		// Incrémentation de j : Indice pour le parcours des membres
+		// Incrémentation de i : Passage au membre suivant
 		i++;
-		j++;
 
-		// Fermeture de tube si i dépasse 1.
-		// Remise à zéro de i car utilisation de seulement deux tubes. Réouverture du tube 0 en haut
-		if(i == 2)
+		// Fermeture des tubes au fur et à mesure de leur création
+		// Ils sont fermés après leur utilisation
+		// Le deuxième argument permet d'éviter de close un tube non initialisé
+		if(i > 1 && my_cmd->nb_cmd_members > 1)
 		{
 			close(tube[i-2][0]);
 			close(tube[i-2][1]);
-			i = 0;
 		}
 	}
 
+	// Mise en place du signal
 	signal(SIGALRM, alarmHandler);
 
-	//déclenchement de l'alarme
-	alarm(10);
+	// Activation de l'alarme
+	alarm(5);
 
-	//attente de la fin des processus fils
-	for (i=1;i<=my_cmd->nb_cmd_members;i++)
-		wait(NULL);
+	// Synhronisation avec les processus fils
+	waitpid(pid,&status,0);
 
-	//fin des processus fils, on annule l'alarme
-	alarm(0);
-
-	//desallocation
-	/*if(my_cmd->nb_cmd_members>1)
+	// Libération de la mémoire mise sur le tas
+	if (my_cmd->nb_cmd_members > 1)
 	{
-		for(i=0;i<my_cmd->nb_cmd_members-1;i++)
+		i = 0;
+
+		while (my_cmd->nb_cmd_members-1 > i)
 		{
 			free(tube[i]);
+			i++;
 		}
 		free(tube);
-	}*/
+	}
+
+	// Valeur de retour du processus père
 	return 0;
 }
