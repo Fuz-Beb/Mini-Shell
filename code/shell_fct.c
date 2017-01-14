@@ -24,7 +24,7 @@ void alarmHandler()
 		kill(pid, SIGKILL);
 }
 
-// Création des pipes et processus fils pour l'execution de la commande 
+// Création des pipes et processus fils pour l'execution de la commande
 int exec_command(cmd * my_cmd)
 {
 	// Variable
@@ -39,7 +39,7 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members > 1)
 	{
 		// Allocation du tube
-		int ** tube = (int**) malloc(sizeof(int*) * 2);
+		tube = (int**) malloc(sizeof(int*) * 2);
 
 		if(tube == NULL)
 		{
@@ -47,28 +47,30 @@ int exec_command(cmd * my_cmd)
 			exit(EXIT_FAILURE);
 		}
 	}
-	
-	printf("AA");
 
 	// Parcours de l'ensemble des membres un par un
 	while(my_cmd->nb_cmd_members > j)
-	{	
+	{
 		// Inutile d'utiliser des tubes si un seul membre dans la commande
 		// Utilisation de deux tubes maximum j < 2
 		if (my_cmd->nb_cmd_members > 1 && j < 2)
 		{
 			// Allocation de la deuxième dimension du tube
 			tube[i] = (int*) malloc(sizeof(int) * 2);
-				
+
 			if(tube[i] == NULL)
 			{
 				printf("Malloc error : tube[i]");
 				exit(EXIT_FAILURE);
 			}
-			
+
 			// Ouverture d'un tube
 			pipe(tube[i]);
 		}
+
+        /*// Réouverture du premier pipe
+		if (i == 0 && j > 0)
+			pipe(tube[i]);*/
 
 		// Création du processus fils
 		pid = fork();
@@ -97,7 +99,6 @@ int exec_command(cmd * my_cmd)
 					}
 
 				}
-				exit(0);
 				// Pas besoin de redirigé le résultat de la commande si c'est le dernier membre
 				// Il sera affiché directement sur l'écran
 				if (my_cmd->nb_cmd_members > j + 1)
