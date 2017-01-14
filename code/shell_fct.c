@@ -7,13 +7,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <stdbool.h>
 #include "shell_fct.h"
 
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
-#define RAPPEND 1
-#define NRAPPEND 0
+#define APPEND 0
+#define OVERRIDE 1
 
 // Variable globale pour le chien de garde
 pid_t pid;
@@ -28,8 +29,9 @@ void alarmHandler()
 int exec_command(cmd * my_cmd)
 {
 	// Variable
-	int i = 0, status;
+	int i = 0, status, file;
 	int ** tube = NULL;
+	bool redirect = false;
 
 	// Retourne -1 si la commande est vide
 	if (my_cmd->nb_cmd_members == 0)
@@ -71,8 +73,97 @@ int exec_command(cmd * my_cmd)
 		pid = fork();
 		if(pid == 0) // Traitement du processus fils
 		{
-			// Inutile d'utiliser des tubes si un seul membre dans la commande
-			if (my_cmd->nb_cmd_members > 1)
+			// Si redirection <
+			if (my_cmd->redirection[i][STDIN] != NULL)
+			{
+				redirect = true;
+
+				file = open(my_cmd->redirection[i][STDIN], O_RDONLY);
+
+				if (file < 0)
+				{
+					printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDIN]);
+					return -1;
+				}
+				dup2(file, 0);
+
+				close(tube[i][0]);
+				dup2(tube[i][1], 1);
+				close(tube[i][1]);
+
+				
+			}
+			else if (my_cmd->redirection[i][STDOUT] != NULL)
+			{
+				redirect = true;
+
+				if (my_cmd->redirection_type[i][STDOUT] == OVERRIDE)
+				{
+					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_TRUNC | O_CREAT);
+					
+					if (file < 0)
+					{
+						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDOUT]);
+						return -1;
+					}
+					dup2(file, 1);
+
+					close(tube[i-1][1]);
+					dup2(tube[i-1][0], 0);
+					close(tube[i-1][0]);
+				}
+				else if (my_cmd->redirection_type[i][STDOUT] == APPEND)
+				{
+					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_APPEND | O_CREAT);
+					
+					if (file < 0)
+					{
+						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDOUT]);
+						return -1;
+					}
+					dup2(file, 1);
+
+					close(tube[i-1][1]);
+					dup2(tube[i-1][0], 0);
+					close(tube[i-1][0]);
+				}
+			}
+			else if (my_cmd->redirection[i][STDERR] != NULL)
+			{
+				redirect = true;
+
+				if (my_cmd->redirection_type[i][STDERR] == OVERRIDE)
+				{
+					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_TRUNC | O_CREAT);
+					
+					if (file < 0)
+					{
+						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDERR]);
+						return -1;
+					}
+					dup2(file, 2);
+
+					close(tube[i-1][1]);
+					dup2(tube[i-1][0], 0);
+					close(tube[i-1][0]);
+				}
+				else if (my_cmd->redirection_type[i][STDERR] == APPEND)
+				{
+					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_APPEND | O_CREAT);
+					
+					if (file < 0)
+					{
+						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDERR]);
+						return -1;
+					}
+					dup2(file, 2);
+
+					close(tube[i-1][1]);
+					dup2(tube[i-1][0], 0);
+					close(tube[i-1][0]);
+				}
+			}
+			else if (my_cmd->nb_cmd_members > 1 && redirect == false) // Inutile d'utiliser des tubes si un seul membre dans la commande
 			{
 				// Pas de données en input si il y a un seul membre
 				if (i > 0)
@@ -101,12 +192,17 @@ int exec_command(cmd * my_cmd)
 					exit(EXIT_FAILURE);
 				}
 			}
+
+			if (redirect == true)
+				close(file);
+
 			// Valeur de retour du processus fils
 			return 0;
 		}
 
 		// Incrémentation de i : Passage au membre suivant
 		i++;
+		redirect = false;
 
 		// Fermeture des tubes au fur et à mesure de leur création
 		// Ils sont fermés après leur utilisation
