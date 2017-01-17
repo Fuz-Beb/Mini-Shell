@@ -242,18 +242,18 @@ void parse_members_args(cmd *c){
 
 }
 
-//Remplit les champs initial_cmd, membres_cmd et nb_membres
+// Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
 	// Variables
-    int pointFin = 0, pointDeb = 0, nbrMembre = 0;
+  int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
-    // Insertion de la commande dans la structure
-    c->init_cmd = strdup(s);
+  // Insertion de la commande dans la structure
+  c->init_cmd = strdup(s);
 
-    // Si la commande est vide alors aucun traitement
-    if (strlen(s) == 0)
-    	return ;
+  // Si la commande est vide alors aucun traitement
+  if (strlen(s) == 0)
+    return ;
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
@@ -276,16 +276,19 @@ void parse_members(char *s,cmd *c){
 			exit(EXIT_FAILURE);
 		}
 
-		// Je verrif si à la fin il y a bien espace et a +1 un pipe
+		// Je déplace mon curseur pointFin jusqu'à ce qu'il trouve un autre membre en trouvant : " |"
 		while(c->init_cmd[pointFin] != '\0' && c->init_cmd[pointFin + 1] != '|')
 			pointFin++;
 
+		// Je place la chaine avant " |" dans un tableau membre disponible
 		c->cmd_members[nbrMembre - 1] = subString(c->init_cmd + pointDeb, c->init_cmd + pointFin);
 
 		if(c->init_cmd[pointFin + 1] != '|')
 				break;
 
+		// On ajoute + 3 pour " | "
 		pointFin += 3;
+		// On replace le curseur de début sur la fin pour passer au membre suivant
 		pointDeb = pointFin;
 	}
 
@@ -454,6 +457,18 @@ cmd * init(){
 }
 
 // Permet de retourner une partie d'une chaine
+/*
+* EXEMPLE :
+* char * str = "abcdef";
+* char * s1 = subString(str,str);
+* char * s2 = subString(str,str+strlen(str));
+* char * s3 = subString(str+1,str+2);
+*
+* We get:
+*    s1: "";
+*    s2: "abcdef";
+*    s3: "b";
+*/
 char * subString(char * start, char * end)
 {
     size_t count = 0;
