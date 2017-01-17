@@ -39,24 +39,18 @@ void print_members_args(cmd *c){
 //Frees the memory allocated to store member arguments
 void free_members_args(cmd *c){
 
-  unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0, j = 0;
 
-	while (nb_cmd_members > 0)
+	while (c->nb_cmd_members > i)
 	{
-		unsigned int nb_members_args = c->nb_members_args[i];
-
 		while (c->cmd_members_args[i][j] != NULL)
 		{
-
 			free(c->cmd_members_args[i][j]);
-			nb_members_args--;
 			j++;
 		}
-
+		free(c->cmd_members_args[i]);
 		j = 0;
 		i++;
-		nb_cmd_members--;
 	}
 	free(c->cmd_members_args);
 	free(c->nb_members_args);
@@ -81,14 +75,12 @@ void print_members(cmd *c){
 //Frees the memory allocated to store member information
 void free_members(cmd *c){
 
-    unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0;
 
-	while (nb_cmd_members > 0)
+	while (c->nb_cmd_members > i)
 	{
 		free(c->cmd_members[i]);
 		i++;
-		nb_cmd_members--;
 	}
 	free(c->cmd_members);
 }
@@ -339,6 +331,11 @@ void parse_redirection(unsigned int i, cmd *c){
 		exit(EXIT_FAILURE);
 	}
 
+	// Mise à NULL des redirections
+	c->redirection[i][STDIN] = NULL;	
+	c->redirection[i][STDOUT] = NULL;
+	c->redirection[i][STDERR] = NULL;
+
 	while (size_command > start + 1)
 	{
 		// On cherche un espace pour vérifier si le caractère suivant est un opérateur de redirection
@@ -360,8 +357,6 @@ void parse_redirection(unsigned int i, cmd *c){
 					end++;
 
 				c->redirection[i][STDIN] = subString(command + start, command + end);
-				c->redirection[i][STDOUT] = NULL;
-				c->redirection[i][STDERR] = NULL;
 			}
 			else
 			{
@@ -400,9 +395,7 @@ void parse_redirection(unsigned int i, cmd *c){
 				while (command[end] != '\0')
 					end++;
 
-				c->redirection[i][STDIN] = NULL;
 				c->redirection[i][STDOUT] = subString(command + start, command + end);
-				c->redirection[i][STDERR] = NULL;
 			}
 			else
 			{
@@ -425,8 +418,6 @@ void parse_redirection(unsigned int i, cmd *c){
 				while (command[end] != '\0')
 					end++;
 
-				c->redirection[i][STDIN] = NULL;
-				c->redirection[i][STDOUT] = NULL;
 				c->redirection[i][STDERR] = subString(command + start, command + end);
 			}
 			else

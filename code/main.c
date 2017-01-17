@@ -44,6 +44,10 @@ int main(int argc, char** argv)
 
 		// Appel de la fonction permettant de créer les pipes, les fork et les execs
 		exec_command(command);
+
+		free_members_args(command);
+		/*free_members(command);*/
+		/*free_redirection(command);*/
 	}
 	// return 0
 	return 0;

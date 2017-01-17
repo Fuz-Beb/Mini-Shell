@@ -37,6 +37,7 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members == 0)
 		return -1;
 
+
 	// Inutile d'utiliser des tubes si un seul membre dans la commande
 	if (my_cmd->nb_cmd_members > 1)
 	{
@@ -165,7 +166,7 @@ int exec_command(cmd * my_cmd)
 			}
 			else if (my_cmd->nb_cmd_members > 1 && redirect == false) // Inutile d'utiliser des tubes si un seul membre dans la commande
 			{
-				// Pas de données en input si il y a un seul membre
+				// Pas de données en input si je suis au premier membre parmis
 				if (i > 0)
 				{
                     close(tube[i-1][1]);
@@ -189,7 +190,7 @@ int exec_command(cmd * my_cmd)
 				if((execvp(my_cmd->cmd_members_args[i][0], my_cmd->cmd_members_args[i])) == -1)
 				{
 					printf("Commande incorrecte !!\n");
-					exit(EXIT_FAILURE);
+					return -1;
 				}
 			}
 
