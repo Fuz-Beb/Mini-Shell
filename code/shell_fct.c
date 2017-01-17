@@ -37,7 +37,6 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members == 0)
 		return -1;
 
-
 	// Inutile d'utiliser des tubes si un seul membre dans la commande
 	if (my_cmd->nb_cmd_members > 1)
 	{

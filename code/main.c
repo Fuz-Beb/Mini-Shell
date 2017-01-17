@@ -12,6 +12,7 @@ int main(int argc, char** argv)
 {
 	// Variables
 	int ret = MYSHELL_CMD_OK;
+	/*int returnValueCmdCommand = 0;*/
 	char* readlineptr;
 	struct passwd* infos;
 	char str[1024];
@@ -43,11 +44,17 @@ int main(int argc, char** argv)
 		print_members_args(command);
 
 		// Appel de la fonction permettant de créer les pipes, les fork et les execs
-		exec_command(command);
+		/*returnValueCmdCommand = */exec_command(command);
 
-		free_members_args(command);
-		/*free_members(command);*/
-		/*free_redirection(command);*/
+		// Si returnValueCmdCommand = -1 alors l'utilisateur a entré une commande vide. Aucun free de structure à faire
+		/*if (returnValueCmdCommand == -1)
+			free(command->init_cmd);
+		else
+		{
+			free_members_args(command);
+			free_members(command);
+			free_redirection(command);
+		}*/
 	}
 	// return 0
 	return 0;

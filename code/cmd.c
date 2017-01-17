@@ -70,6 +70,7 @@ void print_members(cmd *c){
 		i++;
 		nb_cmd_members--;
 	}
+
 }
 
 //Frees the memory allocated to store member information
@@ -135,6 +136,10 @@ void parse_members_args(cmd *c){
 	unsigned int i = 0, j = 0, z = 0, size_args = 0;
 	size_t size_member = 0;
 	char * member = NULL;
+
+	// Si la commande est vide alors aucun traitement
+  	if (strlen(c->init_cmd) == 0)
+    	return ;
 
 	// Allocation du tableau à deux dimensions
 	c->cmd_members_args = (char***) malloc(sizeof(char **));
@@ -238,22 +243,20 @@ void parse_members_args(cmd *c){
 		j = 0;
 		free(member);
 	}
-
-
 }
 
 // Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
 	// Variables
-  int pointFin = 0, pointDeb = 0, nbrMembre = 0;
+  	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
-  // Insertion de la commande dans la structure
-  c->init_cmd = strdup(s);
+  	// Insertion de la commande dans la structure
+  		c->init_cmd = strdup(s);
 
-  // Si la commande est vide alors aucun traitement
-  if (strlen(s) == 0)
-    return ;
+	// Si la commande est vide alors aucun traitement
+  	if (strlen(c->init_cmd) == 0)
+    	return ;
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
