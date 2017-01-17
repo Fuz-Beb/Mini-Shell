@@ -91,7 +91,7 @@ int exec_command(cmd * my_cmd)
 				dup2(tube[i][1], 1);
 				close(tube[i][1]);
 
-				
+
 			}
 			else if (my_cmd->redirection[i][STDOUT] != NULL)
 			{
@@ -99,8 +99,9 @@ int exec_command(cmd * my_cmd)
 
 				if (my_cmd->redirection_type[i][STDOUT] == OVERRIDE)
 				{
-					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_TRUNC | O_CREAT);
-					
+					mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_TRUNC | O_CREAT, mode);
+
 					if (file < 0)
 					{
 						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDOUT]);
@@ -114,8 +115,9 @@ int exec_command(cmd * my_cmd)
 				}
 				else if (my_cmd->redirection_type[i][STDOUT] == APPEND)
 				{
-					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_APPEND | O_CREAT);
-					
+					mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+					file = open(my_cmd->redirection[i][STDOUT], O_WRONLY | O_APPEND | O_CREAT, mode);
+
 					if (file < 0)
 					{
 						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDOUT]);
@@ -134,8 +136,9 @@ int exec_command(cmd * my_cmd)
 
 				if (my_cmd->redirection_type[i][STDERR] == OVERRIDE)
 				{
-					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_TRUNC | O_CREAT);
-					
+					mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_TRUNC | O_CREAT, mode);
+
 					if (file < 0)
 					{
 						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDERR]);
@@ -149,8 +152,9 @@ int exec_command(cmd * my_cmd)
 				}
 				else if (my_cmd->redirection_type[i][STDERR] == APPEND)
 				{
-					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_APPEND | O_CREAT);
-					
+					mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+					file = open(my_cmd->redirection[i][STDERR], O_WRONLY | O_APPEND | O_CREAT, mode);
+
 					if (file < 0)
 					{
 						printf("Echec de l'ouverture du fichier %s",my_cmd->redirection[i][STDERR]);
