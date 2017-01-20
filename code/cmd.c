@@ -264,6 +264,8 @@ void parse_members(char *s,cmd *c){
     	return ;
     }
 
+
+
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
 
@@ -292,7 +294,7 @@ void parse_members(char *s,cmd *c){
 		// Je place la chaine avant " |" dans un tableau membre disponible
 		c->cmd_members[nbrMembre - 1] = subString(c->init_cmd + pointDeb, c->init_cmd + pointFin);
 
-		if(c->init_cmd[pointFin + 1] != '|')
+		if(c->init_cmd[pointFin] != ' ')
 				break;
 
 		// On ajoute + 3 pour " | "
@@ -302,6 +304,7 @@ void parse_members(char *s,cmd *c){
 	}
 
 	c->nb_cmd_members = nbrMembre;
+	/*exit(EXIT_FAILURE);*/
 }
 
 //Remplit les champs redir et type_redir
