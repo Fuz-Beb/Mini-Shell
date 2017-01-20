@@ -7,3 +7,4 @@
 //Execute a command
 int exec_command(cmd* my_cmd);
 void alarmHandler();
+void destroy(cmd * c, int returnValue);

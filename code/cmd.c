@@ -139,7 +139,10 @@ void parse_members_args(cmd *c){
 
 	// Si la commande est vide alors aucun traitement
   	if (strlen(c->init_cmd) == 0)
-    	return ;
+  	{
+  		printf("PARSE_MEMBERS_ARGS = 0");
+  		return ;
+  	}
 
 	// Allocation du tableau à deux dimensions
 	c->cmd_members_args = (char***) malloc(sizeof(char **));
@@ -256,7 +259,10 @@ void parse_members(char *s,cmd *c){
 
 	// Si la commande est vide alors aucun traitement
   	if (strlen(c->init_cmd) == 0)
+    {
+    	printf("PARSE_MEMBERS = 0");
     	return ;
+    }
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
@@ -434,7 +440,7 @@ void parse_redirection(unsigned int i, cmd *c){
 		}
 
 	}
-	/*print_redirection(c, i);*/
+	print_redirection(c, i);
 }
 
 // Initialise l'ensemble des champs de la structure
@@ -457,6 +463,22 @@ cmd * init(){
 	command->redirection_type = 0;
 
 	return command;
+}
+
+
+// A REVOIR
+void destroy(cmd * c, int returnValue){
+
+	if (returnValue == -1)
+	{
+		free(c->init_cmd);
+	}
+	else
+	{
+		free_members_args(c);
+		free_members(c); 
+		free_redirection(c);
+	}
 }
 
 // Permet de retourner une partie d'une chaine
