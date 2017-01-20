@@ -251,6 +251,10 @@ void parse_members_args(cmd *c){
 // Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
+	// Suppression/Prise en charge de la tabulation en fin de chaine
+	if(s[strlen(s) - 1] == ' ')
+	    s[strlen(s) - 1] = '\0';
+
 	// Variables
   	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
@@ -344,7 +348,7 @@ void parse_redirection(unsigned int i, cmd *c){
 	}
 
 	// Mise à NULL des redirections
-	c->redirection[i][STDIN] = NULL;	
+	c->redirection[i][STDIN] = NULL;
 	c->redirection[i][STDOUT] = NULL;
 	c->redirection[i][STDERR] = NULL;
 
@@ -476,7 +480,7 @@ void destroy(cmd * c, int returnValue){
 	else
 	{
 		free_members_args(c);
-		free_members(c); 
+		free_members(c);
 		free_redirection(c);
 	}
 }
