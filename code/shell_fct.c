@@ -253,7 +253,7 @@ int exec_command(cmd * my_cmd)
 	{
 		i = 0;
 
-		while (my_cmd->nb_cmd_members-1 > i)
+		while (my_cmd->nb_cmd_members > i)
 		{
 			free(tube[i]);
 			i++;

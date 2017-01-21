@@ -237,25 +237,21 @@ void parse_members_args(cmd *c){
 // Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
-	// Insertion de la commande dans la structure
-  	c->init_cmd = strdup(s);
+	// Variables
+  	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
-	// Si la commande est vide alors aucun traitement
-  	if (strlen(c->init_cmd) == 0)
+  	// Si la commande est vide alors aucun traitement
+  	if (strlen(s) == 0)
     {
-    	printf("PARSE_MEMBERS = 0");
+   		c->init_cmd = strdup("");
     	return ;
     }
 
 	// Suppression/Prise en charge de la tabulation en fin de chaine. Corrige l'auto complétion
-	if(c->init_cmd[strlen(c->init_cmd) - 1] == ' ')
-	{
-		c->init_cmd = realloc (c->init_cmd, sizeof(char) * strlen(c->init_cmd) - 1);
-	    c->init_cmd[strlen(c->init_cmd)] = '\0';
-	}
-	
-	// Variables
-  	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
+	if(s[strlen(s) - 1] == ' ')
+		c->init_cmd = subString(s, s + strlen(s) - 1);
+	else // Insertion de la commande dans la structure
+		c->init_cmd = strdup(s);
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
@@ -328,12 +324,15 @@ void parse_redirection(unsigned int i, cmd *c){
 	}
 
 	// Allocation du tableau redirection
-	c->redirection_type = (int**) malloc(sizeof(int *) * c->nb_cmd_members);
-
-	if (c->redirection == NULL)
+	if (c->redirection_type == NULL)
 	{
-		printf("Malloc error : c->redirection");
-		exit(EXIT_FAILURE);
+		c->redirection_type = (int**) malloc(sizeof(int *) * c->nb_cmd_members);
+
+		if (c->redirection == NULL)
+		{
+			printf("Malloc error : c->redirection");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	// Mise à NULL des redirections
