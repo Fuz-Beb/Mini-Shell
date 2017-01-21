@@ -249,9 +249,11 @@ void parse_members(char *s,cmd *c){
 
 	// Suppression/Prise en charge de la tabulation en fin de chaine. Corrige l'auto complétion
 	if(c->init_cmd[strlen(c->init_cmd) - 1] == ' ')
+	{
 		c->init_cmd = realloc (c->init_cmd, sizeof(char) * strlen(c->init_cmd) - 1);
 	    c->init_cmd[strlen(c->init_cmd)] = '\0';
-
+	}
+	
 	// Variables
   	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
@@ -464,16 +466,13 @@ cmd * init(){
 // A REVOIR
 void destroy(cmd * c, int returnValue){
 
-	if (returnValue == -1)
-	{
-		free(c->init_cmd);
-	}
-	else
+	if (returnValue != -1)
 	{
 		free_members_args(c);
 		free_members(c);
 		free_redirection(c);
 	}
+	free(c->init_cmd);
 	free(c);
 }
 

@@ -43,7 +43,9 @@ int main(int argc, char** argv)
 		print_members_args(command);
 
 		// Appel de la fonction permettant de créer les pipes, les fork et les execs
-		destroy(command, exec_command(command)); 
+		destroy(command, exec_command(command));
+
+		free(readlineptr);
 	}
 	// return 0
 	return 0;

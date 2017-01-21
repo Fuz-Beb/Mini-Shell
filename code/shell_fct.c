@@ -37,6 +37,10 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members == 0)
 		return -1;
 
+	// Quitte le programme si l'utilisateur écrit la commande exit
+	if (strcmp(my_cmd->init_cmd, "exit") == 0)
+		exit(EXIT_SUCCESS);
+
 	// Inutile d'utiliser des tubes si un seul membre dans la commande
 	if (my_cmd->nb_cmd_members > 1)
 	{
