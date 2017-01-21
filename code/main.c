@@ -1,6 +1,7 @@
 #include <pwd.h>
 #include <stdio.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -31,19 +32,22 @@ int main(int argc, char** argv)
 		sprintf(str, "\n{myshell}%s@%s:%s$ ", infos->pw_name, hostname, workingdirectory);
 		readlineptr = readline(str);
 
+		// Permet d'ajouter un historique avec les fleches (ne pas oublier le include en haut)
+		add_history(readlineptr);
+
 		// Initialise la structure
 		command = init();
 
 		// Ajoute les membres
 		parse_members(readlineptr, command);
 		print_members(command);
-		
+
 		// Ajoute les arguments des membres
 		parse_members_args(command);
 		print_members_args(command);
 
 		// Appel de la fonction permettant de créer les pipes, les fork et les execs
-		destroy(command, exec_command(command)); 
+		destroy(command, exec_command(command));
 	}
 	// return 0
 	return 0;
