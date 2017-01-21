@@ -13,26 +13,21 @@
 //Prints the contents of members_args to the console
 void print_members_args(cmd *c){
 
-	unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0, j = 0;
 
-	while (nb_cmd_members > 0)
+	while (c->nb_cmd_members > i)
 	{
-		unsigned int nb_members_args = c->nb_members_args[i];
-
 		// Affichage du nombre d'arguments pour chaque membre
 		printf("nb_members_args[%d] = %d\n", i, c->nb_members_args[i]);
 
-		while (nb_members_args > 0)
+		while (c->nb_members_args[i] > j)
 		{
 			// Affichage de chaque argument
 			printf("cmd_members_args[%d][%d] = %s\n",i, j, c->cmd_members_args[i][j]);
-			nb_members_args--;
 			j++;
 		}
 		j = 0;
 		i++;
-		nb_cmd_members--;
 	}
 }
 
@@ -59,16 +54,14 @@ void free_members_args(cmd *c){
 //Prints the contents of members to the console
 void print_members(cmd *c){
 
-	unsigned int nb_cmd_members = c->nb_cmd_members;
 	int i = 0;
 
 	printf("nb_cmd_members = %d\n", c->nb_cmd_members);
 
-	while (nb_cmd_members > 0)
+	while (c->nb_cmd_members > i)
 	{
 		printf("cmd_members_args[%d]= %s\n",i, c->cmd_members[i]);
 		i++;
-		nb_cmd_members--;
 	}
 
 }
@@ -100,33 +93,25 @@ void print_redirection(cmd *c, int i){
 //Frees the memory allocated to store redirection info
 void free_redirection(cmd *c){
 
-		unsigned int nb_cmd_members = c->nb_cmd_members;
-		int i = 0;
+	int i = 0;
 
-		while (nb_cmd_members > 0) {
+	while (c->nb_cmd_members > i) {
 
-			unsigned int nb_members_args = c->nb_members_args[i];
-
-			while (c->redirection[i][STDIN] != NULL && c->redirection[i][STDOUT] != NULL && c->redirection[i][STDERR] != NULL) {
-
-				if(c->redirection[i][STDIN] != NULL)
-						free(c->redirection[i][STDIN]);
-
-				if(c->redirection[i][STDOUT] != NULL)
-						free(c->redirection[i][STDOUT]);
-
-				if(c->redirection[i][STDERR] != NULL)
-						free(c->redirection[i][STDERR]);
-
-				nb_members_args--;
-				i++;
-			}
-
-			nb_cmd_members--;
+		if(c->redirection[i][STDIN] != NULL)
+			free(c->redirection[i][STDIN]);
+		if(c->redirection[i][STDOUT] != NULL)
+		{
+			free(c->redirection[i][STDOUT]);
+			free(c->redirection_type[i]);
 		}
+		if(c->redirection[i][STDERR] != NULL)
+			free(c->redirection[i][STDERR]);
 
-		free(c->redirection);
-
+		free(c->redirection[i]);
+		i++;
+	}
+	free(c->redirection_type);
+	free(c->redirection);
 }
 
 //Remplit les champs cmd_args et nb_args_membres
@@ -145,7 +130,7 @@ void parse_members_args(cmd *c){
   	}
 
 	// Allocation du tableau à deux dimensions
-	c->cmd_members_args = (char***) malloc(sizeof(char **));
+	c->cmd_members_args = (char***) malloc(sizeof(char **) * c->nb_cmd_members);
 
 	if (c->cmd_members_args == NULL)
 	{
@@ -161,8 +146,6 @@ void parse_members_args(cmd *c){
 		printf("Malloc error : c->nb_members_args");
 		exit(EXIT_FAILURE);
 	}
-
-
 
 	// Parcours des membres
 	while(c->nb_cmd_members != i)
@@ -195,6 +178,9 @@ void parse_members_args(cmd *c){
 			// Avance tant qu'il y a des espaces
 			while (member[j] != ' ' && member[j] != '\0')
 				j++;
+
+			if (member[j] == '\0')
+				break;
 
 			j++;
 
@@ -251,15 +237,8 @@ void parse_members_args(cmd *c){
 // Remplit les champs initial_cmd, membres_cmd et nb_membres
 void parse_members(char *s,cmd *c){
 
-	// Suppression/Prise en charge de la tabulation en fin de chaine
-	if(s[strlen(s) - 1] == ' ')
-	    s[strlen(s) - 1] = '\0';
-
-	// Variables
-  	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
-
-  	// Insertion de la commande dans la structure
-  		c->init_cmd = strdup(s);
+	// Insertion de la commande dans la structure
+  	c->init_cmd = strdup(s);
 
 	// Si la commande est vide alors aucun traitement
   	if (strlen(c->init_cmd) == 0)
@@ -268,7 +247,13 @@ void parse_members(char *s,cmd *c){
     	return ;
     }
 
+	// Suppression/Prise en charge de la tabulation en fin de chaine. Corrige l'auto complétion
+	if(c->init_cmd[strlen(c->init_cmd) - 1] == ' ')
+		c->init_cmd = realloc (c->init_cmd, sizeof(char) * strlen(c->init_cmd) - 1);
+	    c->init_cmd[strlen(c->init_cmd)] = '\0';
 
+	// Variables
+  	int pointFin = 0, pointDeb = 0, nbrMembre = 0;
 
 	// Allocation du tableau
 	c->cmd_members = (char**) malloc(sizeof(char *));
@@ -308,7 +293,6 @@ void parse_members(char *s,cmd *c){
 	}
 
 	c->nb_cmd_members = nbrMembre;
-	/*exit(EXIT_FAILURE);*/
 }
 
 //Remplit les champs redir et type_redir
@@ -323,7 +307,7 @@ void parse_redirection(unsigned int i, cmd *c){
     if (c->redirection == NULL)
     {
     	// Allocation du tableau à deux dimensions
-		c->redirection = (char***) malloc(sizeof(char **));
+		c->redirection = (char***) malloc(sizeof(char **) * c->nb_cmd_members);
 
 		if (c->redirection == NULL)
 		{
@@ -342,7 +326,7 @@ void parse_redirection(unsigned int i, cmd *c){
 	}
 
 	// Allocation du tableau redirection
-	c->redirection_type = (int**) malloc(sizeof(int *));
+	c->redirection_type = (int**) malloc(sizeof(int *) * c->nb_cmd_members);
 
 	if (c->redirection == NULL)
 	{
@@ -360,6 +344,9 @@ void parse_redirection(unsigned int i, cmd *c){
 		// On cherche un espace pour vérifier si le caractère suivant est un opérateur de redirection
 		while (command[start] != ' ' && command[start] != '2' && command[start] != '\0')
 			start++;
+
+		if (command[start] == '\0')
+			break;
 
 		start++;
 
@@ -388,7 +375,8 @@ void parse_redirection(unsigned int i, cmd *c){
 			if (command[start+1] == ' ' || (command[start+1] == '>' && command[start+2] == ' '))
 			{
 				// Allocation de la deuxième partie du tableau redirection
-				c->redirection_type[i] = (int*) malloc(sizeof(int));
+				c->redirection_type[i] = (int*) malloc(sizeof(int) * 2);
+
 
 				if (c->redirection_type[i] == NULL)
 				{
@@ -445,8 +433,8 @@ void parse_redirection(unsigned int i, cmd *c){
 				exit(EXIT_FAILURE);
 			}
 		}
-
 	}
+	free(command);
 	print_redirection(c, i);
 }
 
@@ -486,6 +474,7 @@ void destroy(cmd * c, int returnValue){
 		free_members(c);
 		free_redirection(c);
 	}
+	free(c);
 }
 
 // Permet de retourner une partie d'une chaine

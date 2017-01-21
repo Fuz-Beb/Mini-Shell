@@ -41,7 +41,7 @@ int exec_command(cmd * my_cmd)
 	if (my_cmd->nb_cmd_members > 1)
 	{
 		// Allocation du tube
-		tube = (int**) malloc(sizeof(int*) * (my_cmd->nb_cmd_members - 1));
+		tube = (int**) malloc(sizeof(int*) * my_cmd->nb_cmd_members);
 
 		if(tube == NULL)
 		{
@@ -87,11 +87,12 @@ int exec_command(cmd * my_cmd)
 				}
 				dup2(file, 0);
 
-				close(tube[i][0]);
-				dup2(tube[i][1], 1);
-				close(tube[i][1]);
-
-
+				if (my_cmd->nb_cmd_members > i + 1)
+				{
+					close(tube[i][0]);
+					dup2(tube[i][1], 1);
+					close(tube[i][1]);
+				}
 			}
 			else if (my_cmd->redirection[i][STDOUT] != NULL)
 			{
@@ -109,9 +110,13 @@ int exec_command(cmd * my_cmd)
 					}
 					dup2(file, 1);
 
-					close(tube[i-1][1]);
-					dup2(tube[i-1][0], 0);
-					close(tube[i-1][0]);
+					// Pas de données en input si je suis au premier membre parmis
+					if (i > 0)
+					{
+						close(tube[i-1][1]);
+						dup2(tube[i-1][0], 0);
+						close(tube[i-1][0]);
+					}
 				}
 				else if (my_cmd->redirection_type[i][STDOUT] == APPEND)
 				{
@@ -124,10 +129,14 @@ int exec_command(cmd * my_cmd)
 						return -1;
 					}
 					dup2(file, 1);
-
-					close(tube[i-1][1]);
-					dup2(tube[i-1][0], 0);
-					close(tube[i-1][0]);
+					
+					// Pas de données en input si je suis au premier membre parmis
+					if (i > 0)
+					{
+						close(tube[i-1][1]);
+						dup2(tube[i-1][0], 0);
+						close(tube[i-1][0]);
+					}
 				}
 			}
 			else if (my_cmd->redirection[i][STDERR] != NULL)
@@ -146,9 +155,13 @@ int exec_command(cmd * my_cmd)
 					}
 					dup2(file, 2);
 
-					close(tube[i-1][1]);
-					dup2(tube[i-1][0], 0);
-					close(tube[i-1][0]);
+					// Pas de données en input si je suis au premier membre parmis
+					if (i > 0)
+					{
+						close(tube[i-1][1]);
+						dup2(tube[i-1][0], 0);
+						close(tube[i-1][0]);
+					}
 				}
 				else if (my_cmd->redirection_type[i][STDERR] == APPEND)
 				{
@@ -162,9 +175,13 @@ int exec_command(cmd * my_cmd)
 					}
 					dup2(file, 2);
 
-					close(tube[i-1][1]);
-					dup2(tube[i-1][0], 0);
-					close(tube[i-1][0]);
+					// Pas de données en input si je suis au premier membre parmis
+					if (i > 0)
+					{
+						close(tube[i-1][1]);
+						dup2(tube[i-1][0], 0);
+						close(tube[i-1][0]);
+					}
 				}
 			}
 			else if (my_cmd->nb_cmd_members > 1 && redirect == false) // Inutile d'utiliser des tubes si un seul membre dans la commande
